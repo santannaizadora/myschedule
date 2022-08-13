@@ -1,0 +1,10 @@
+*{
+    box-sizing: border-box;
+    --background-color: #FFFFFF;
+    --primary-color: #0159A2;
+    --secondary-color: #E72739;
+
+    --main-font: 'Roboto';
+    --secondary-font: 'Saira Condensed';
+
+}

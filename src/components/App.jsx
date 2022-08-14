@@ -5,6 +5,7 @@ import TokenContext from "../contexts/TokenContext";
 
 import Login from "../screens/Login";
 import Register from "../screens/Register";
+import Calendar from "../screens/Calendar";
 
 export default function App() {
   const [token, setToken] = useState("");
@@ -18,7 +19,8 @@ export default function App() {
         <ToastContainer />
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register/>} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/calendar" element={<Calendar />} />
         </Routes>
       </BrowserRouter>
     </TokenContext.Provider>

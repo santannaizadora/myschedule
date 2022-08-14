@@ -40,7 +40,7 @@ export default function RegisterForm() {
               toastConfig
             );
             setTimeout(() => {
-              navigate("/login");
+              navigate("/");
             }, 3000);
           })
           .catch((err) => {
@@ -141,7 +141,7 @@ export default function RegisterForm() {
           {isSubmitting ? (
             <ThreeDots color="#FFF" height={50} width={50} />
           ) : (
-            "Entrar"
+            "Cadastrar"
           )}
         </Button>
       </Form>

@@ -12,7 +12,7 @@ export default function Register() {
       <LogoText>
         <span>My</span>Schedule
       </LogoText>
-      <RegisterForm key="loginForm" />
+      <RegisterForm key="registerForm" />
       <Login>
         <Link to="/">Já possui uma conta? Login</Link>
       </Login>

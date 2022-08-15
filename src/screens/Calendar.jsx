@@ -129,15 +129,18 @@ export default function Agenda() {
       final_time: "",
     });
 
-
     const saveAppointment = () => {
       if (token) {
         axios
-          .post(`${process.env.REACT_APP_API_URL}/appointment/new`, appointment, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          .post(
+            `${process.env.REACT_APP_API_URL}/appointment/new`,
+            appointment,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
           .then((res) => {
             setAppointment({
               title: "",
@@ -150,11 +153,12 @@ export default function Agenda() {
             getDayAppointments();
             getMonthAppointments();
             handleClose();
-          }).catch((err) => {
-            toast.error(err.response.data.message, toastConfig);
           })
-        }
-      }  
+          .catch((err) => {
+            toast.error(err.response.data.message, toastConfig);
+          });
+      }
+    };
 
     return (
       <div>
@@ -220,9 +224,7 @@ export default function Agenda() {
             </TimeContainer>
             <ButtomContainer>
               <Button onClick={handleClose}>Cancelar</Button>
-              <Button onClick={saveAppointment}>
-                Salvar
-              </Button>
+              <Button onClick={saveAppointment}>Salvar</Button>
             </ButtomContainer>
           </Box>
         </Modal>
@@ -245,27 +247,27 @@ export default function Agenda() {
       fontFamily: "Roboto",
     };
 
-    const updateObject = {...appointmentToUpdate};
+    const updateObject = { ...appointmentToUpdate };
     delete updateObject.id;
     delete updateObject.user_id;
 
     const [appointment, setAppointment] = useState({
       ...updateObject,
-      initial_time: updateObject.initial_time?.split('T')[1].split(':00.')[0],
-      final_time: updateObject.final_time?.split('T')[1].split(':00.')[0],
+      initial_time: updateObject.initial_time?.split("T")[1].split(":00.")[0],
+      final_time: updateObject.final_time?.split("T")[1].split(":00.")[0],
     });
 
-    const updateAppointment = () => {
+    const deleteAppointment = () => {
       if (token) {
         axios
-          .put(`${process.env.REACT_APP_API_URL}/appointment/${appointmentToUpdate.id}`, {
-            ...appointment,
-            date: date
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          .delete(
+            `${process.env.REACT_APP_API_URL}/appointment/${appointmentToUpdate.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
           .then((res) => {
             setAppointment({
               title: "",
@@ -280,9 +282,44 @@ export default function Agenda() {
             handleCloseModal();
           }).catch((err) => {
             toast.error(err.response.data.message, toastConfig);
+          }
+          );
+      }
+    }
+
+    const updateAppointment = () => {
+      if (token) {
+        axios
+          .put(
+            `${process.env.REACT_APP_API_URL}/appointment/${appointmentToUpdate.id}`,
+            {
+              ...appointment,
+              date: date,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((res) => {
+            setAppointment({
+              title: "",
+              observation: "",
+              place: "",
+              date: date,
+              initial_time: "",
+              final_time: "",
+            });
+            getDayAppointments();
+            getMonthAppointments();
+            handleCloseModal();
           })
-        }
-      }  
+          .catch((err) => {
+            toast.error(err.response.data.message, toastConfig);
+          });
+      }
+    };
 
     return (
       <div>
@@ -353,9 +390,10 @@ export default function Agenda() {
             </TimeContainer>
             <ButtomContainer>
               <Button onClick={handleCloseModal}>Cancelar</Button>
-              <Button onClick={updateAppointment}>
-                Salvar
-              </Button>
+              <Button onClick={() => {
+                window.confirm("Deseja realmente excluir o compromisso?") && deleteAppointment();
+              }}>Excluir</Button>
+              <Button onClick={updateAppointment}>Atualizar</Button>
             </ButtomContainer>
           </Box>
         </Modal>
@@ -367,8 +405,8 @@ export default function Agenda() {
     <>
       <Header />
       <Container>
-      <RegisterModal />
-      <UpdateModal />
+        <RegisterModal />
+        <UpdateModal />
         <Calendar
           calendarType="US"
           formatDay={(locale, date) => format(date)}
@@ -386,38 +424,51 @@ export default function Agenda() {
           onClickDay={handleOpen}
         />
         <SelectedDayAppointments>
-          <Title>{dayjs(date).locale('pt-br').format('dddd, DD [de] MMMM [de] YYYY')}</Title>
+          <Title>
+            {dayjs(date).locale("pt-br").format("dddd, DD [de] MMMM [de] YYYY")}
+          </Title>
           <ItensContainer>
-          {dayAppointments.length > 0 ? (
-            dayAppointments.map((appointment) => {
-              return (
-                <AppointmentItem 
-                  key={appointment.id}
-                  onClick={() => {
-                    setAppointmentToUpdate(appointment);
-                    handleOpenModal();
-                  }}
+            {dayAppointments.length > 0 ? (
+              dayAppointments.map((appointment) => {
+                return (
+                  <AppointmentItem
+                    key={appointment.id}
+                    onClick={() => {
+                      setAppointmentToUpdate(appointment);
+                      handleOpenModal();
+                    }}
                   >
-                  <AppointmentTitle>{appointment.title}</AppointmentTitle>
-                  {appointment.observation ? (
-                    <AppointmentObservation>{appointment.observation}</AppointmentObservation>
-                  ) : (
-                    <AppointmentObservation>Sem descrição</AppointmentObservation>
-                  )}
-                  <AppointmentPlace>Local: {appointment.place}</AppointmentPlace>
-                  <AppointmentTime> Horário: {appointment.initial_time.split('T')[1].split('.')[0]} - {appointment.final_time.split('T')[1].split('.')[0]}</AppointmentTime>
-                </AppointmentItem>
-              );
-            })
-          ) : (
-            <EmptyDay>
-              <p>Não há compromissos neste dia</p>
-            </EmptyDay>
-          )}
+                    <AppointmentTitle>{appointment.title}</AppointmentTitle>
+                    {appointment.observation ? (
+                      <AppointmentObservation>
+                        {appointment.observation}
+                      </AppointmentObservation>
+                    ) : (
+                      <AppointmentObservation>
+                        Sem descrição
+                      </AppointmentObservation>
+                    )}
+                    <AppointmentPlace>
+                      Local: {appointment.place}
+                    </AppointmentPlace>
+                    <AppointmentTime>
+                      {" "}
+                      Horário:{" "}
+                      {
+                        appointment.initial_time.split("T")[1].split(".")[0]
+                      } - {appointment.final_time.split("T")[1].split(".")[0]}
+                    </AppointmentTime>
+                  </AppointmentItem>
+                );
+              })
+            ) : (
+              <EmptyDay>
+                <p>Não há compromissos neste dia</p>
+              </EmptyDay>
+            )}
           </ItensContainer>
         </SelectedDayAppointments>
       </Container>
-      
     </>
   );
 }
@@ -445,7 +496,7 @@ const AppointmentTime = styled.p`
 const Container = styled.div`
   display: flex;
   padding: 50px 20px;
-  background-color: #D0E7F8;
+  background-color: #d0e7f8;
   height: 100vh;
   justify-content: center;
 `;
@@ -541,7 +592,7 @@ const AppointmentItem = styled.div`
   width: 300px;
   min-height: 80px;
   margin-bottom: 10px;
-  background: #F1F3FC;
+  background: #f1f3fc;
   border-left: 7px solid var(--primary-color);
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   border-radius: 3px;
@@ -568,4 +619,4 @@ const Title = styled.h1`
   color: #000000;
   width: 100%;
   padding-bottom: 20px;
-`
+`;

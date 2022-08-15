@@ -36,12 +36,10 @@ export default function RegisterForm() {
           })
           .then((res) => {
             toast.success(
-              "Cadastro realizado com sucesso, você será redirecionado para a página de login",
+              "Cadastro realizado com sucesso",
               toastConfig
             );
-            setTimeout(() => {
-              navigate("/");
-            }, 3000);
+            navigate("/");
           })
           .catch((err) => {
             toast.error(err.response.data.message, toastConfig);

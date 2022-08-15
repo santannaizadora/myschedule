@@ -27,8 +27,10 @@ export default function Agenda() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  console.log("month", monthAppointments);
-  console.log("day", dayAppointments);
+  const [openModal, setOpenModal] = React.useState(false);
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
+  const [appointmentToUpdate, setAppointmentToUpdate] = React.useState({});
 
   const getDayAppointments = () => {
     if (token) {
@@ -80,11 +82,6 @@ export default function Agenda() {
       (appointment) =>
         appointment.date.split("T")[0] === dayjs(date).format("YYYY-MM-DD")
     );
-    console.log("appointments", appointments);
-
-    appointments.length > 0
-      ? console.log(dayjs(appointments.date).format("YYYY-MM-DD"), date)
-      : console.log("não tem agendamento");
 
     return (
       <DayFormat>
@@ -159,7 +156,6 @@ export default function Agenda() {
         }
       }  
 
-    console.log("appointment", appointment);
     return (
       <div>
         <Modal
@@ -234,11 +230,145 @@ export default function Agenda() {
     );
   };
 
+  const UpdateModal = () => {
+    const style = {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "background.paper",
+      boxShadow: 24,
+      p: 4,
+      display: "flex",
+      flexDirection: "column",
+      fontFamily: "Roboto",
+    };
+
+    const updateObject = {...appointmentToUpdate};
+    delete updateObject.id;
+    delete updateObject.user_id;
+
+    const [appointment, setAppointment] = useState({
+      ...updateObject,
+      initial_time: updateObject.initial_time?.split('T')[1].split(':00.')[0],
+      final_time: updateObject.final_time?.split('T')[1].split(':00.')[0],
+    });
+
+    const updateAppointment = () => {
+      if (token) {
+        axios
+          .put(`${process.env.REACT_APP_API_URL}/appointment/${appointmentToUpdate.id}`, {
+            ...appointment,
+            date: date
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((res) => {
+            setAppointment({
+              title: "",
+              observation: "",
+              place: "",
+              date: date,
+              initial_time: "",
+              final_time: "",
+            });
+            getDayAppointments();
+            getMonthAppointments();
+            handleCloseModal();
+          }).catch((err) => {
+            toast.error(err.response.data.message, toastConfig);
+          })
+        }
+      }  
+
+    return (
+      <div>
+        <Modal
+          open={openModal}
+          onClose={handleCloseModal}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography
+              id="modal-modal-title"
+              variant="h6"
+              component="h2"
+              sx={{ marginBottom: "10px", textTransform: "capitalize" }}
+            >
+              {dayjs(date).locale("pt-br").format("dddd, DD [de] MMMM")}
+            </Typography>
+            <Typography id="modal-modal-description" variant="subtitle1">
+              Atualizar compromisso:
+            </Typography>
+            <Input
+              type="text"
+              placeholder="Título"
+              value={appointment.title}
+              onChange={(e) =>
+                setAppointment({ ...appointment, title: e.target.value })
+              }
+            />
+            <Input
+              type="text"
+              placeholder="Descrição"
+              value={appointment.observation}
+              onChange={(e) =>
+                setAppointment({ ...appointment, observation: e.target.value })
+              }
+            />
+            <Input
+              type="text"
+              placeholder="Local"
+              value={appointment.place}
+              onChange={(e) =>
+                setAppointment({ ...appointment, place: e.target.value })
+              }
+            />
+            <TimeContainer>
+              <p>Horário inicial: </p>
+              <TimeInput
+                type="time"
+                value={appointment.initial_time}
+                onChange={(e) =>
+                  setAppointment({
+                    ...appointment,
+                    initial_time: e.target.value,
+                  })
+                }
+              />
+            </TimeContainer>
+            <TimeContainer>
+              <p>Horário final: </p>
+              <TimeInput
+                type="time"
+                value={appointment.final_time}
+                onChange={(e) =>
+                  setAppointment({ ...appointment, final_time: e.target.value })
+                }
+              />
+            </TimeContainer>
+            <ButtomContainer>
+              <Button onClick={handleCloseModal}>Cancelar</Button>
+              <Button onClick={updateAppointment}>
+                Salvar
+              </Button>
+            </ButtomContainer>
+          </Box>
+        </Modal>
+      </div>
+    );
+  };
+
   return (
     <>
       <Header />
       <Container>
       <RegisterModal />
+      <UpdateModal />
         <Calendar
           calendarType="US"
           formatDay={(locale, date) => format(date)}
@@ -261,7 +391,13 @@ export default function Agenda() {
           {dayAppointments.length > 0 ? (
             dayAppointments.map((appointment) => {
               return (
-                <AppointmentItem key={appointment.id}>
+                <AppointmentItem 
+                  key={appointment.id}
+                  onClick={() => {
+                    setAppointmentToUpdate(appointment);
+                    handleOpenModal();
+                  }}
+                  >
                   <AppointmentTitle>{appointment.title}</AppointmentTitle>
                   {appointment.observation ? (
                     <AppointmentObservation>{appointment.observation}</AppointmentObservation>
@@ -410,6 +546,10 @@ const AppointmentItem = styled.div`
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   border-radius: 3px;
   padding: 10px;
+
+  :hover {
+    cursor: pointer;
+  }
 `;
 
 const ItensContainer = styled.div`

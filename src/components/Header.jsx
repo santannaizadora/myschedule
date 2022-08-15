@@ -1,23 +1,33 @@
 import styled from "styled-components";
+import { useContext } from "react";
+import TokenContext from "../contexts/TokenContext";
+import { Link } from "react-router-dom";
 
 export default function Header() {
+
+  const { token } = useContext(TokenContext);
+
   return (
     <HeaderContainer className="header">
       <LogoText>
         <span>My</span>Schedule
       </LogoText>
-      <Logout
-        onClick={() => {
-            let sair = window.confirm("Deseja realmente sair?");
-            if(sair){
-                localStorage.removeItem("token");
-                window.location.href = "/";
-            }
+      {token !== "" 
+      ? 
+      <Options onClick={
+        () => {
+          const confirm = window.confirm("Deseja realmente sair?") 
+          if (confirm) {
+            localStorage.removeItem("token")
+            window.location.reload()
+          }
         }
-        }
-      >
-        Sair
-      </Logout>
+      }>Sair</Options>
+    : <OptionsContainer>
+      <Options><Link to="/">Login</Link></Options>
+      <Options><Link to="/register">Cadastre-se</Link></Options>
+    </OptionsContainer>
+    }
     </HeaderContainer>
   );
 }
@@ -47,15 +57,27 @@ const LogoText = styled.p`
   }
 `;
 
-const Logout = styled.p`
+const Options = styled.p`
     font-family: var(--main-font);
     font-style: normal;
     font-weight: 300;
     font-size: 18px;
     line-height: 17px;
     text-align: center;
+    margin-right: 10px;
 
     :hover {
         cursor: pointer;
     }
+
+    a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-family: var(--main-font);
+    }
+`;
+
+const OptionsContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;

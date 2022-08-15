@@ -28,6 +28,13 @@ const HeaderContainer = styled.header`
   border-bottom: 1px solid #e6e6e6;
   padding: 10px;
   justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background-color: #fff;
+  height: 40px;
 `;
 
 const LogoText = styled.p`

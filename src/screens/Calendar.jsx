@@ -255,17 +255,64 @@ export default function Agenda() {
           }}
           onClickDay={handleOpen}
         />
+        <SelectedDayAppointments>
+          <Title>{dayjs(date).locale('pt-br').format('dddd, DD [de] MMMM [de] YYYY')}</Title>
+          <ItensContainer>
+          {dayAppointments.length > 0 ? (
+            dayAppointments.map((appointment) => {
+              return (
+                <AppointmentItem key={appointment.id}>
+                  <AppointmentTitle>{appointment.title}</AppointmentTitle>
+                  {appointment.observation ? (
+                    <AppointmentObservation>{appointment.observation}</AppointmentObservation>
+                  ) : (
+                    <AppointmentObservation>Sem descrição</AppointmentObservation>
+                  )}
+                  <AppointmentPlace>Local: {appointment.place}</AppointmentPlace>
+                  <AppointmentTime> Horário: {appointment.initial_time.split('T')[1].split('.')[0]} - {appointment.final_time.split('T')[1].split('.')[0]}</AppointmentTime>
+                </AppointmentItem>
+              );
+            })
+          ) : (
+            <EmptyDay>
+              <p>Não há compromissos neste dia</p>
+            </EmptyDay>
+          )}
+          </ItensContainer>
+        </SelectedDayAppointments>
       </Container>
       
     </>
   );
 }
 
-const Container = styled.div`
-  display: flex;
-  padding: 0 20px;
+const AppointmentTitle = styled.h3`
+  padding-bottom: 5px;
+`;
+const AppointmentObservation = styled.p`
+  font-size: 12px;
+  padding-left: 15px;
+  max-width: 100%;
+  overflow: hidden;
+`;
+const AppointmentPlace = styled.p`
+  font-size: 15px;
+  padding-top: 2px;
+  padding-left: 15px;
+`;
+const AppointmentTime = styled.p`
+  font-size: 15px;
+  padding-top: 2px;
+  padding-left: 15px;
 `;
 
+const Container = styled.div`
+  display: flex;
+  padding: 50px 20px;
+  background-color: #D0E7F8;
+  height: 100vh;
+  justify-content: center;
+`;
 const DayFormat = styled.div`
   display: flex;
   flex-direction: column;
@@ -276,14 +323,12 @@ const DayFormat = styled.div`
   width: 100%;
   height: 100%;
 `;
-
 const Day = styled.div`
   display: flex;
   position: absolute;
   top: 10px;
   left: 10px;
 `;
-
 const Appointments = styled.div`
   display: flex;
   flex-direction: column;
@@ -297,13 +342,11 @@ const Appointments = styled.div`
     background: transparent;
   }
 `;
-
 const Appointment = styled.p`
   width: 100%;
   display: flex;
   font-family: --var(--main-font);
 `;
-
 const Input = styled.input`
   width: 100%;
   height: 40px;
@@ -313,7 +356,6 @@ const Input = styled.input`
   margin-bottom: 5px;
   font-family: --var(--main-font);
 `;
-
 const TimeInput = styled.input`
   width: 50%;
   height: 40px;
@@ -324,7 +366,6 @@ const TimeInput = styled.input`
   font-size: 14px;
   font-family: --var(--main-font);
 `;
-
 const TimeContainer = styled.div`
   display: flex;
   align-items: center;
@@ -333,8 +374,58 @@ const TimeContainer = styled.div`
     margin-right: 10px;
   }
 `;
-
 const ButtomContainer = styled.div`
   align-self: flex-end;
   margin-top: 15px;
 `;
+
+const SelectedDayAppointments = styled.div`
+  display: flex;
+  margin-left: 20px;
+  flex-direction: column;
+  padding: 15px;
+  width: 400px;
+  height: 565px;
+  border-radius: 10px;
+  background-color: #fff;
+`;
+
+const EmptyDay = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: black;
+  width: 100%;
+  height: 100%;
+`;
+
+const AppointmentItem = styled.div`
+  width: 300px;
+  min-height: 80px;
+  margin-bottom: 10px;
+  background: #F1F3FC;
+  border-left: 7px solid var(--primary-color);
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  padding: 10px;
+`;
+
+const ItensContainer = styled.div`
+  margin-left: 20px;
+  overflow: scroll;
+
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+`;
+
+const Title = styled.h1`
+  font-family: --var(--main-font);
+  font-size: 20px;
+  color: #000000;
+  width: 100%;
+  padding-bottom: 20px;
+`
